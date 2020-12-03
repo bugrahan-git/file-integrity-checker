@@ -2,9 +2,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class ichecker {
+    private static String op;
     
-    static String op;
-
     public static void main(String ... args) {
 	
 	ichecker ic = new ichecker(); 
