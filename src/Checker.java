@@ -2,6 +2,7 @@ import java.text.SimpleDateFormat;
 import java.sql.Timestamp;
 import java.util.*;
 import java.io.*;
+import java.lang.*;
 
 public class Checker {
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyy HH:mm:ss");
@@ -32,10 +33,29 @@ public class Checker {
 	    e.printStackTrace();
 	}
     }
-
+    /*Store all files in an arraylist*/
+    private List<String> files = new ArrayList<String>();
+    
+    private void getFiles(String path) {
+	File dir = new File(path);
+	File[] fList = dir.listFiles();
+	if(fList != null) {
+	    for(File f : fList) {
+		if(f.isFile())
+		    files.add(f.getAbsolutePath());
+		else if(f.isDirectory())
+		    getFiles(f.getAbsolutePath());
+	    }
+	}
+    }
+ 
     public void createReg(String regFile, String path, String logFile, 
 			    String hashFunc, String priKey) {
-	 
+	
+	getFiles(path);
+	for(String f : files) 
+	    System.out.println(f);
+
 
     }
     
