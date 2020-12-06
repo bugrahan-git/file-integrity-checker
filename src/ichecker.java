@@ -7,7 +7,7 @@ public class ichecker {
     public static void main(String ... args) {
 	
 	ichecker ic = new ichecker(); 
-	
+	Checker ch = new Checker();	
 	Map<Character, String> argv = ic.getArgs(args);
 	
 	System.out.printf("Operation: %s\n", op);

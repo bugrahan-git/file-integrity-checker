@@ -14,8 +14,11 @@ public class Checker {
 			"-keystore key.jks " + 
 			"-keysize 2048 ";
 	
+	
 	try {
-	    sun.security.tools.keytool.Main.main(cmd);	
+	    System.out.println("keypair is creating...");
+	    sun.security.tools.keytool.Main.main(cmd.split(" "));	
+	    System.out.println("Keypair created.");
 	}catch(Exception e) {
 	    e.printStackTrace();
 	}
