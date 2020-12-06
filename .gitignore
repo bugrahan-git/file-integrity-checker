@@ -5,3 +5,5 @@
 *.pri
 *.pub
 *.key
+*.log
+*.reg

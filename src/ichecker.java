@@ -10,6 +10,8 @@ public class ichecker {
 	
 	if(op.equals("createCert"))
 	    ch.createCert(argv.get('k'), argv.get('c'));
+	else if(op.equals("createReg"))
+	    ch.createReg(argv.get('r'), argv.get('p'), argv.get('l'), argv.get('h'), argv.get('k'));
     }
 
 
