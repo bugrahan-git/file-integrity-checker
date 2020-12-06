@@ -6,4 +6,6 @@
 
 ## Run
 
-`java ichecker createReg -r /RegFile/path -p /Path/ -I /logfile/path -h /hash/path -k /prikey/path`
+### createCert
+
+`java ichecker createCert -c /path/to/file -k /path/to/file`
