@@ -2,21 +2,14 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class ichecker {
+    private static String op;
     
-    static String op;
-
     public static void main(String ... args) {
+	Checker ch = new Checker();	
+	Map<Character, String> argv = getArgs(args);
 	
-	ichecker ic = new ichecker(); 
-	
-	Map<Character, String> argv = ic.getArgs(args);
-	
-	System.out.printf("Operation: %s\n", op);
-	for(Character c : argv.keySet()) {
-	    String key = c.toString();
-	    String value = argv.get(c);
-	    System.out.println(key + ": " + value);
-	}
+	if(op.equals("createCert"))
+	    ch.createCert(argv.get('k'), argv.get('c'));
     }
 
 
