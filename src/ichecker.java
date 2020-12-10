@@ -12,6 +12,10 @@ public class ichecker {
 	    ch.createCert(argv.get('k'), argv.get('c'));
 	else if(op.equals("createReg"))
 	    ch.createReg(argv.get('r'), argv.get('p'), argv.get('l'), argv.get('h'), argv.get('k'));
+	else if(op.equals("check"))
+		ch.checkIntegrity(argv.get('r'), argv.get('p'), argv.get('l'), argv.get('h'), argv.get('c'));
+	else
+		System.out.println("Unrecognized parameter " + op);
     }
 
 
