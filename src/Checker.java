@@ -33,8 +33,6 @@ public class Checker {
 	}
     
     public void createCert(String priKey, String pubCert){
-		Base64.Encoder encoder = Base64.getEncoder();
-		System.out.println("***ICHECKER***");
 		String password = null;
 		java.io.Console console = System.console();
 		try {
@@ -75,7 +73,7 @@ public class Checker {
 		PrivateKey privateKey =
 				(PrivateKey) keyStore.getKey(priKey, password.toCharArray());
 		writeFile(priKey+".enc", encryptor(keyAES, new String(privateKey.getEncoded())+
-				"KORKMAZLAR BILISIM", true), false);
+				"MEANINGFUL TEXT", true), false);
 
 	}catch(Exception e) {
 	    e.printStackTrace();
@@ -153,10 +151,9 @@ public class Checker {
     public void createReg(String regFile, String path, String logFile, String hashFunc, String priKey) {
 	/*GET ALL FILES IN GIVEN DIR /INCLUDING SUBDIRECTORIES/*/
 	getFiles(path);
-
+	writeFile(regFile, "", false);
 	byte[] digitalSignature;
 	Signature signature = null;
-	System.out.println("***ICHECKER***");
 	String password;
 	java.io.Console console = System.console();
 	KeyStore keyStore;
@@ -168,7 +165,7 @@ public class Checker {
 		String keyfile = readFile(priKey+".enc");
 		assert keyfile != null;
 		boolean enc = (Objects.requireNonNull(encryptor(trial_key, keyfile, false)))
-				.endsWith("KORKMAZLAR BILISIM");
+				.endsWith("MEANINGFUL TEXT");
 		if(!enc)
 		{
 			System.out.println("Wrong Password");
@@ -243,6 +240,7 @@ public class Checker {
 		digitalSignature = signature.sign();
 		output = new String(Base64.getEncoder().encode(digitalSignature));
 		writeFile(regFile, output, true);
+		System.out.println("Registration File Created.");
 	}catch (Exception e){e.printStackTrace();}
 	
     }
@@ -300,7 +298,7 @@ public class Checker {
 
 	public void checkIntegrity(String regFile, String path, String logFile, String hash, String pubKey) {
 		/*CHECK REGISTRY FILE USING pubKey*/
-		FileInputStream fin = null;
+		FileInputStream fin;
 		boolean isVerified = false;
 		Signature signature;
 		try {
@@ -333,7 +331,7 @@ public class Checker {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		String output = "";
+		String output;
 
 		if(!isVerified) {
 			output = getTimestamp() + ": " + "Registry file verification is failed!" + "\n";
@@ -350,9 +348,8 @@ public class Checker {
 		Map<String, String> original = new HashMap<>();
 		Map<String, String> toCheck = new HashMap<>();
 
-		String[] regTokens = regReader(regFile).split("\n| ");
+		String[] regTokens = Objects.requireNonNull(regReader(regFile)).split("\n| ");
 
-		System.out.println(Arrays.toString(regTokens));
 		/*POPULATE THE ORIGINAL HASHMAP USING THE REGISTER FILE'S CONTENT*/
 		for(int i = 0; i < regTokens.length - 1; i+=2)
 			original.put(regTokens[i], regTokens[i+1]);
@@ -366,7 +363,7 @@ public class Checker {
 
 		boolean isChanged = false;
 
-		/*CHECK toCheck HASHMAP's KEYSET AND COMPARE WITH ORIGINAL HASHMAP*/
+		/*CHECK toCheck HASHMAP's KEY SET AND COMPARE WITH ORIGINAL HASHMAP*/
 		for(String fPath : toCheck.keySet()) {
 			String tmpCheck = toCheck.get(fPath);
 			String tmpOrig = original.get(fPath);
@@ -374,26 +371,24 @@ public class Checker {
 			if(tmpOrig == null) {
 				output = getTimestamp() + ": " + fPath + " is " + "created" + "\n";
 				isChanged = true;
+				writeFile(logFile, output, true);
 			}else if(!tmpOrig.equals(tmpCheck)){
 				output = getTimestamp() + ": " + fPath + " is " + "altered" + "\n";
 				isChanged = true;
+				writeFile(logFile, output, true);
 			}
 
-			if(isChanged)
-				writeFile(logFile, output, true);
 		}
 
-		/*CHECK ORIGINAL HASHMAP'S KEYSET AND COMPARE WITH OTHER HASHMAP*/
+		/*CHECK ORIGINAL HASHMAP'S KEY SET AND COMPARE WITH OTHER HASHMAP*/
 		for(String fPath : original.keySet()) {
 			String tmpCheck = toCheck.get(fPath);
 
 			if(tmpCheck == null) {
 				output = getTimestamp() + ": " + fPath + " is " + "deleted" + "\n";
 				isChanged = true;
-			}
-
-			if(isChanged)
 				writeFile(logFile, output, true);
+			}
 		}
 
 		/*NOTHING IS CHANGED*/
@@ -401,5 +396,6 @@ public class Checker {
 			output = getTimestamp() + ": " + "The directory is checked and no change is detected!" + "\n";
 			writeFile(logFile, output, true);
 		}
+		System.out.println("Checking Integrity has finished.");
 	}
 }
