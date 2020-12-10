@@ -178,8 +178,7 @@ public class Checker {
 		{
 			String decrypted = encryptor(trial_key, keyfile, false);
 			assert decrypted != null;
-			writeFile(priKey+".enc", decrypted.substring(0,
-					decrypted.length()-"KORKMAZLAR BILISIM".length()), false);
+			writeFile(priKey+".enc", decrypted, false);
 		}
 		keyStore = KeyStore.getInstance("PKCS12");
 		keyStore.load(new FileInputStream(priKey), password.toCharArray());
@@ -192,7 +191,7 @@ public class Checker {
 			signature = Signature.getInstance("SHA256withRSA");
 
 		signature.initSign(privateKey);
-
+		writeFile(priKey+".enc", encryptor(trial_key, readFile(priKey+".enc"), true), false);
 	}
 	catch (Exception e) {
 		e.printStackTrace();
@@ -203,22 +202,22 @@ public class Checker {
 	int count = 0; 
 	
 	for(String fPath : files) {
-	    output = "[" + fPath + "] ";
+	    output =  fPath + " ";
 	    
 	    if(hashFunc.equals("MD5"))
 			output += calculateMD5(fPath) + "\n";
 	    else if(hashFunc.equals("SHA-256"))
 	    	output += calculateSHA256(fPath) + "\n";
 	    else{
-		System.out.println("Unsupported hash function "+ hashFunc + ". Only MD5 or SHA-256");
-		return;
+			System.out.println("Unsupported hash function "+ hashFunc + ". Only MD5 or SHA-256");
+			return;
 	    }
 
 	    /*ADD HASH VALUE TO REGISTRY*/
 	    writeFile(regFile, output, true);
 	    count++;
 	    /*APPEND CURRENT OP TO LOG FILE*/
-	    output = "[" + getTimestamp() + "] " + fPath +" is added to registry.\n";
+	    output = getTimestamp() + ": " + fPath +" is added to registry.\n";
 	    writeFile(logFile, output, true);
 	}
 	
@@ -230,9 +229,8 @@ public class Checker {
 	else
 	    regHash = calculateSHA256(regFile);
 
-	
 	/*FINISH THE PROCESS*/
-	output = "[" + getTimestamp() + "] " + count
+	output = getTimestamp() + ": " + count
 			+ " files are added to the registry and registry creation is finished!\n";
 	writeFile(logFile, output, true);
 
@@ -319,7 +317,7 @@ public class Checker {
 			String[] lines = Objects.requireNonNull(regReader(regFile)).split("\n");
 			StringBuilder reg_file = new StringBuilder();
 			for(int i=0; i<lines.length-1; i++)
-				reg_file.append(lines[i]);
+				reg_file.append(lines[i]).append("\n");
 			String signature_line = lines[lines.length-1];
 			byte[] reg_bytes;
 			if(hash.equals("MD5")){
@@ -330,7 +328,6 @@ public class Checker {
 			}
 			reg_bytes = DatatypeConverter.printHexBinary(reg_bytes).getBytes();
 			signature.update(reg_bytes);
-
 			byte[] signal = Base64.getDecoder().decode(signature_line);
 			isVerified = signature.verify(signal);
 		} catch (Exception e) {
@@ -339,7 +336,7 @@ public class Checker {
 		String output = "";
 
 		if(!isVerified) {
-			output = getTimestamp() + ": " + "Registry file verification is failed!";
+			output = getTimestamp() + ": " + "Registry file verification is failed!" + "\n";
 			writeFile(logFile, output, true);
 			return;
 		}
@@ -353,8 +350,9 @@ public class Checker {
 		Map<String, String> original = new HashMap<>();
 		Map<String, String> toCheck = new HashMap<>();
 
-		String[] regTokens = readFile(regFile).split("\n| ");
+		String[] regTokens = regReader(regFile).split("\n| ");
 
+		System.out.println(Arrays.toString(regTokens));
 		/*POPULATE THE ORIGINAL HASHMAP USING THE REGISTER FILE'S CONTENT*/
 		for(int i = 0; i < regTokens.length - 1; i+=2)
 			original.put(regTokens[i], regTokens[i+1]);
@@ -374,10 +372,10 @@ public class Checker {
 			String tmpOrig = original.get(fPath);
 
 			if(tmpOrig == null) {
-				output = getTimestamp() + ": " + fPath + " is " + "created";
+				output = getTimestamp() + ": " + fPath + " is " + "created" + "\n";
 				isChanged = true;
 			}else if(!tmpOrig.equals(tmpCheck)){
-				output = getTimestamp() + ": " + fPath + " is " + "altered";
+				output = getTimestamp() + ": " + fPath + " is " + "altered" + "\n";
 				isChanged = true;
 			}
 
@@ -390,7 +388,7 @@ public class Checker {
 			String tmpCheck = toCheck.get(fPath);
 
 			if(tmpCheck == null) {
-				output = getTimestamp() + ": " + fPath + " is " + "deleted";
+				output = getTimestamp() + ": " + fPath + " is " + "deleted" + "\n";
 				isChanged = true;
 			}
 
@@ -400,7 +398,7 @@ public class Checker {
 
 		/*NOTHING IS CHANGED*/
 		if(!isChanged) {
-			output = getTimestamp() + ": " + "The directory is checked and no change is detected!";
+			output = getTimestamp() + ": " + "The directory is checked and no change is detected!" + "\n";
 			writeFile(logFile, output, true);
 		}
 	}
