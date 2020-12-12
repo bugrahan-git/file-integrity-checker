@@ -301,6 +301,7 @@ public class Checker {
 		FileInputStream fin;
 		boolean isVerified = false;
 		Signature signature;
+		String output;
 		try {
 			fin = new FileInputStream(pubKey);
 			CertificateFactory f = CertificateFactory.getInstance("X.509");
@@ -329,16 +330,13 @@ public class Checker {
 			byte[] signal = Base64.getDecoder().decode(signature_line);
 			isVerified = signature.verify(signal);
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		String output;
-
-		if(!isVerified) {
 			output = getTimestamp() + ": " + "Registry file verification is failed!" + "\n";
 			writeFile(logFile, output, true);
-			return;
+			
+		    return;
 		}
 
+	
 		/* CHECK ALL FILE'S HASH AGAIN
 		 * THEN COMPARE WITH THE REGISTRY FILE IF IT CHANGED */
 
